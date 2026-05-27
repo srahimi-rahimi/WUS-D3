@@ -19,14 +19,9 @@ metgrid.exe
 
 # WRF/WPS build logs
 compile.log
-configure.log
 *.log
 *.out
 *.err
-
-# Generated configuration backups
-configure.wrf.bak
-configure.wps.bak
 
 # WRF/WPS generated files and run products
 wrfout_*
