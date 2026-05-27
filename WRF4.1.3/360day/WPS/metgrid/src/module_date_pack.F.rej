@@ -1,0 +1,184 @@
+--- geth_idts.F.original	2015-04-09 14:11:47.000000000 +0200
++++ geth_idts.F	2015-04-09 14:58:34.000000000 +0200
+@@ -63,6 +63,20 @@
+ !  Assign the number of days in a months
+ !
+ 
++#ifdef D360_CALENDAR
++      mday( 1) = 30
++      mday( 2) = 30
++      mday( 3) = 30
++      mday( 4) = 30
++      mday( 5) = 30
++      mday( 6) = 30
++      mday( 7) = 30
++      mday( 8) = 30
++      mday( 9) = 30
++      mday(10) = 30
++      mday(11) = 30
++      mday(12) = 30
++#else
+       mday( 1) = 31
+       mday( 2) = 28
+       mday( 3) = 31
+@@ -75,6 +89,7 @@
+       mday(10) = 31
+       mday(11) = 30
+       mday(12) = 31
++#endif
+ 
+ !
+ !  Break down old hdate into parts
+@@ -140,6 +155,12 @@
+ 
+ !  Check that the day of NDATE makes sense.
+ 
++#ifdef D360_CALENDAR
++      IF ((dynew.GT.mday(monew)).or.(dynew.LT.1)) THEN
++         PRINT*, 'GETH_IDTS:  Day of NDATE = ', dynew
++         npass = .false.
++      END IF
++#else
+       if (monew.ne.2) then
+ ! ...... For all months but February
+          if ((dynew.gt.mday(monew)).or.(dynew.lt.1)) then
+@@ -153,9 +174,16 @@
+             npass = .false.
+          endif
+       endif
++#endif
+ 
+ !  Check that the day of ODATE makes sense.
+ 
++#ifdef D360_CALENDAR
++      IF ((dyold.GT.mday(moold)).or.(dyold.LT.1)) THEN
++         PRINT*, 'GETH_IDTS:  Day of ODATE = ', dyold
++         opass = .false.
++      END IF
++#else
+       if (moold.ne.2) then
+ ! ...... For all months but February
+          if ((dyold.gt.mday(moold)).or.(dyold.lt.1)) then
+@@ -169,6 +197,7 @@
+             opass = .false.
+          endif
+       endif
++#endif
+ 
+ !  Check that the hour of NDATE makes sense.
+ 
+@@ -233,15 +262,23 @@
+ 
+       newdys = 0
+       do i = yrold, yrnew - 1
++#ifdef D360_CALENDAR
++         newdys = newdys + 360
++#else
+          newdys = newdys + (365 + (nfeb(i)-28))
++#endif
+       enddo
+ 
+       if (monew .gt. 1) then
++#ifndef D360_CALENDAR
+          mday(2) = nfeb(yrnew)
++#endif
+          do i = 1, monew - 1
+             newdys = newdys + mday(i)
+          enddo
++#ifndef D360_CALENDAR
+          mday(2) = 28
++#endif
+       end if
+ 
+       newdys = newdys + dynew-1
+@@ -253,11 +290,15 @@
+       olddys = 0
+ 
+       if (moold .gt. 1) then
++#ifndef D360_CALENDAR
+          mday(2) = nfeb(yrold)
++#endif
+          do i = 1, moold - 1
+             olddys = olddys + mday(i)
+          enddo
++#ifndef D360_CALENDAR
+          mday(2) = 28
++#endif
+       end if
+ 
+       olddys = olddys + dyold-1
+@@ -288,6 +329,7 @@
+ !**************************  Subroutine End  ***************************
+ 
+       end
++#ifndef D360_CALENDAR
+       integer function nfeb(year)
+ !
+ ! Compute the number of days in February for the given year.
+@@ -314,3 +356,4 @@
+ #endif
+ 
+       end function nfeb
++#endif--- geth_newdate.F.original	2015-04-09 14:11:47.000000000 +0200
++++ geth_newdate.F	2015-04-09 15:03:24.000000000 +0200
+@@ -72,6 +72,20 @@
+ !  Assign the number of days in a months
+ !
+ 
++#ifdef D360_CALENDAR
++      mday( 1) = 30
++      mday( 2) = 30
++      mday( 3) = 30
++      mday( 4) = 30
++      mday( 5) = 30
++      mday( 6) = 30
++      mday( 7) = 30
++      mday( 8) = 30
++      mday( 9) = 30
++      mday(10) = 30
++      mday(11) = 30
++      mday(12) = 30
++#else
+       mday( 1) = 31
+       mday( 2) = 28
+       mday( 3) = 31
+@@ -84,6 +98,7 @@
+       mday(10) = 31
+       mday(11) = 30
+       mday(12) = 31
++#endif
+ 
+ !
+ !  Break down old hdate into parts
+@@ -108,6 +123,7 @@
+ !
+ !  Set the number of days in February for that year.
+ !
++#ifndef D360_CALENDAR
+       mday(2) = 28
+       if (.not. noLeapCalendar) then
+          if (mod(yrold,4).eq.0) then
+@@ -120,6 +136,7 @@
+             endif
+          endif
+       endif
++#endif
+ !
+ !  Check that ODATE makes sense.
+ !
+@@ -214,6 +231,7 @@
+                monew = 1
+                yrnew = yrnew + 1
+ 
++#ifndef D360_CALENDAR
+                mday(2) = 28
+                if (.not. noLeapCalendar) then
+                   if (mod(yrnew,4).eq.0) then
+@@ -226,6 +244,7 @@
+                      endif
+                   endif
+                endif
++#endif
+ 
+             end if
+          endif
